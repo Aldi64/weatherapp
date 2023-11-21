@@ -1,58 +1,147 @@
-import Button from 'react-bootstrap/Button';
-import logo from './logo.svg';
-import './App.css';
+import Button from "react-bootstrap/Button";
+
+import "./App.css";
+import icon128 from "./assets/images/icon128.png";
+import { useEffect, useState } from "react";
+import useGetWeather from "./hooks/useGetWeather";
+import useCityStorage from "./hooks/useCityStorage";
+import WeatherHistory from './hooks/WeatherHistory';
+
 
 function App() {
+  const [cityInput, setCityInput] = useState("");
+  const { getStorage, setStorage } = useCityStorage();
+  const { data: weatherData, getWeather } = useGetWeather();
+
+  // Listens on changes in cityInput and then performs the function as intended
+  // This hook depends on the deps variable to run the func
+  useEffect(() => {
+    console.log(cityInput);
+  }, [cityInput]);
+
+  // This hook runs on an empty arrayed dep
+  // This hook will only run once the page is loaded
+  useEffect(() => {
+    //console.log("This page is loaded");
+    //console.log(getStorage());
+  }, []);
+
+  // This hook runs once any state is updated
+  useEffect(() => {
+    //console.log("Everything else is updated");
+  });
+
+  const onSubmitButtonClicked = () => {
+    console.log('City input:', cityInput);
+    getWeather(cityInput);
+    setStorage(cityInput); // Make sure this line is correctly calling setStorage
+  };
+
+  useEffect(() => {
+    //console.log(weatherData);
+  }, [weatherData]);
+
   return (
     <div class="container">
-        <h1>Weather App</h1>
-        <table class="centerContainer">
-            <tr>
-                <td>
-                    <label id="cityLabel"
-                     for="cityNameTextField"
-                     style={{color: "grey"}}>Enter a city: </label>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <input id="cityNameTextField" type="text" name="cityName"/>
-                    <input
-                        id="submitButton"
-                        type="button"
-                        value="Submit"
-                        onclick="submitAction()"
-                    />
-                </td>
-            </tr>
+      <h1>Weather App</h1>
+      <img src={icon128} alt="icon128" />
+      <table class="centerContainer">
+        <tr>
+          <td>
+            <label
+              id="cityLabel"
+              for="cityNameTextField"
+              style={{ color: "black" }}
+            >
+              Enter a city:
+            </label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input
+              id="cityNameTextField"
+              type="text"
+              name="cityName"
+              value={cityInput}
+              placeholder="i.e. Jakarta, Singapore"
+              onChange={(event) => {
+                setCityInput(event.target.value);
+              }}
+            />
+            <Button
+              onClick={onSubmitButtonClicked}
+              id="submitButton"
+              type="submit"
+            >
+              Submit
+            </Button>
+          </td>
+        </tr>
+      </table>
+      <div class="spacer"></div>
+      <div
+        id="errorMessageComponent"
+        style={{ display: "none", color: "#fc574e" }}
+      ></div>
+
+      <div
+        id="loader"
+        style={{ display: "none" }}
+        class="spinner spinner-border"
+        role="status"
+      >
+        <span class="sr-only">Loading...</span>
+      </div>
+
+      <div id="weatherInfoComponent" style={{ display: "flex" }}>
+        <table class="centerContainer" cellpadding="5px">
+          <tr>
+            <th class="customTableHeader">Temperature</th>
+            <td id="temperatureField">
+              {`${weatherData?.main?.temp ?? "-"}°C`}
+            </td>
+          </tr>
+          <tr>
+            <th class="customTableHeader">Feels Like</th>
+            <td id="feelsLikeField">
+              {`${weatherData?.main?.feels_like ?? "-"}°C`}
+            </td>
+          </tr>
+          <tr>
+            <th class="customTableHeader">Humidity</th>
+            <td id="humidityField">{`${
+              weatherData?.main?.humidity ?? "-"
+            } %`}</td>
+          </tr>
+          <tr>
+            <th class="customTableHeader">Atmospheric Pressure</th>
+            <td id="pressureField">{`${
+              weatherData?.main?.pressure ?? "-"
+            } hPa`}</td>
+          </tr>
         </table>
-        <div class="spacer"></div>
-        <div id="errorMessageComponent" style={{display: "none", color: "red"}}></div>
-        <div style={{display: "none"}} class="spinner spinner-border" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-        <div id="weatherInfoComponent" style={{display: "none"}}>
-            <table width="60%" class="centerContainer" cellpadding="5px">
-                <tr>
-                    <th>Temperature</th>
-                    <td id="temperatureField">0</td>
-                </tr>
-                <tr>
-                    <th>Feels Like</th>
-                    <td id="feelsLikeField">0</td>
-                </tr>
-                <tr>
-                    <th>Humidity</th>
-                    <td id="humidityField">0</td>
-                </tr>
-                <tr>
-                    <th>Atmospheric Pressure</th>
-                    <td id="pressureField">0</td>
-                </tr>
-            </table>
-        </div>
+      </div>
+      <WeatherHistory /> {WeatherHistory}
+      <div class="spacer"></div>
+      <div
+        id="errorMessageComponent"
+        style={{ display: "none", color: "#fc574e" }}
+      ></div>
+
+      <div
+        id="loader"
+        style={{ display: "none" }}
+        class="spinner spinner-border"
+        role="status"
+      >
+        <span class="sr-only">Loading...</span>
+      </div>
+
+      <div id="weatherInfoComponent" style={{ display: "flex" }}></div>
     </div>
   );
 }
+
 
 export default App;
